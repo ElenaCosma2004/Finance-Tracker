@@ -68,6 +68,10 @@ All designed to help users better understand their money habits and take control
 
 ### Data Sources
 
+https://plaid.com/en-eu/
+
+https://www.chartjs.org/-
+
 ---
 
 #### BankAPI – Bank Transactions
