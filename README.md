@@ -1,119 +1,89 @@
-# Finance-Tracker
+# Data Warehousing – MindTrack
 
-## DATA WAREHOUSING
+## Scenario
 
-### Scenario
+I am a Data Engineer at a platform that provides academic planning and tracking tools for university students. The company has developed the **MindTrack** application to help students organize study sessions, monitor their academic progress, and improve performance based on personalized analytics.
 
-I am a **Data Engineer** at **SpendIQ**, a startup that developed a personal finance app designed to help users understand and improve their financial behavior.  
-The app connects to bank accounts, automatically categorizes transactions, and generates insights about:
+## Business Requirements
 
-- monthly spending
-- savings patterns
-- recurring costs
+MindTrack collects data on users' study habits, academic results, and learning progress. The platform provides personalized insights and reports to help students optimize their time and performance during the semester.
 
----
+## Core Business Goals
 
-### Business Requirements
+- **Study Effort Analysis**– Aggregate and visualize the time spent on each subject to track progress and identify areas needing attention.subject.
 
-The **SpendIQ** app connects to users' bank accounts via a secure API and collects transaction data. It offers:
+- **Study Consistency Trends** – Monitor how study habits evolve over time, highlighting increases or decreases in study effort per week.
+- **Goal Achievement Insights** – Evaluate if students are meeting their learning targets and suggest improvements.
 
-- Personalized reports
-- Smart notifications
-- Interactive dashboards
+## Reports
 
-All designed to help users better understand their money habits and take control of their financial future.
+- Time spent per subject vs. average grade
+- Study session frequency by weekday
+- Subjects with low topic coverage
+- Grade trends over time
+- Focus level distribution by session type
 
----
+## Dashboards
 
-### Core Business Goals
+- Total time studied per subject (weekly view)
+- Progress coverage % by subject
+- Grades before/after intense study periods
+- Study planner adherence (planned vs. spontaneous sessions)
 
-- **Spending Behavior Analysis** – Aggregate and visualize monthly spending habits
-- **Saving Trends** – Identify if users are saving or overspending month over month
-- **Budget Planning Insights** – Evaluate whether budgets are respected and suggest adjustments
-- **Subscription Tracking** – Monitor recurring expenses such as streaming services
-- **User Motivation** – Use KPIs to reward users who meet saving goals
+## KPIs
 
----
-
-### Reports
-
-- **Monthly Spending per Category** (Food, Fashion, Utilities, Transport, Subscriptions, etc.)
-- **Recurring Subscriptions List per User**
-- **Savings vs. Expenses per Month**
-- **Budget vs. Actual Spending by Category**
-
----
-
-### Dashboards
-
-- **Personal Budget Compliance Dashboard**
-- **Spending Heatmap** – Days with the Highest Expenses
-- **Spending vs. Saving Trendline** – Last 6 Months
-- **Category Breakdown Pie Chart** – Current Month
-- **Subscriptions Overview** – Recurring Payments Summary
-
----
-
-### KPIs
-
-- **% of Income Saved per Month**
-- **Average Daily Spending**
-- **Total Monthly Expenses**
-- **Number of Recurring Payments**
-- **Top 3 Spending Categories per User**
-
----
+- % of syllabus covered
+- Efficiency index (grade / time invested)
+- Average session duration
+- Sessions with focus level ≥ 4
 
 ## Data Warehouse Design
 
-### Data Sources
+The data warehouse is hosted on the server `MindTrack` and the database is named `mindtrack_db`.
 
-https://plaid.com/en-eu/
+## Sources
 
-https://www.chartjs.org/-
+### users
 
----
+| Column Name       | Data Type    | Description                      |
+| ----------------- | ------------ | -------------------------------- |
+| user_id           | VARCHAR(20)  | Unique identifier of the student |
+| first_name        | VARCHAR(50)  | Student's first name             |
+| last_name         | VARCHAR(50)  | Student's last name              |
+| birth_date        | DATE         | Student's date of birth          |
+| email             | VARCHAR(100) | Email address                    |
+| city              | VARCHAR(50)  | City of residence                |
+| registration_date | DATE         | Date of account creation         |
 
-#### BankAPI – Bank Transactions
+### study_sessions
 
-**Table:** `bank_transactions`
+| Column Name      | Data Type    | Description                                |
+| ---------------- | ------------ | ------------------------------------------ |
+| session_id       | VARCHAR(50)  | Unique identifier of the session           |
+| user_id          | VARCHAR(20)  | Student identifier                         |
+| subject_name     | VARCHAR(50)  | Name of the academic subject               |
+| topic_name       | VARCHAR(100) | Specific topic studied during the session  |
+| date             | DATE         | Study session date                         |
+| duration_minutes | INT          | Duration of session in minutes             |
+| focus_level      | INT          | Self-reported focus level (1–5 scale)      |
+| planned          | BOOLEAN      | Whether the session was planned in advance |
 
-| Column           | Type         | Description                                         |
-| ---------------- | ------------ | --------------------------------------------------- |
-| transaction_id   | INT          | Unique ID of the transaction                        |
-| user_id          | INT          | References user who made the transaction            |
-| transaction_date | DATE         | Date of the transaction                             |
-| amount           | DECIMAL      | Amount spent or received                            |
-| currency         | VARCHAR(3)   | Currency code (e.g., USD, EUR)                      |
-| merchant_name    | VARCHAR(100) | Name of the merchant                                |
-| category         | VARCHAR(50)  | food, transport, rent, fashion, subscriptions, etc. |
-| is_recurring     | BOOLEAN      | Marks if it's a recurring transaction               |
+### subject_progress
 
----
+| Column Name    | Data Type   | Description                           |
+| -------------- | ----------- | ------------------------------------- |
+| user_id        | VARCHAR(20) | Student identifier                    |
+| subject_name   | VARCHAR(50) | Academic subject                      |
+| total_topics   | INT         | Total number of topics in the subject |
+| topics_covered | INT         | Number of topics already covered      |
+| date_updated   | DATE        | Date of the latest progress update    |
 
-#### BudgetPlanner – User-defined Budgets
+### grades
 
-**Table:** `user_budgets`
-
-| Column        | Type        | Description                          |
-| ------------- | ----------- | ------------------------------------ |
-| budget_id     | INT         | Unique ID for each budget            |
-| user_id       | INT         | Reference to the user                |
-| month         | VARCHAR(7)  | Format: "YYYY-MM" (e.g. "2025-05")   |
-| category      | VARCHAR(50) | Spending category (food, rent, etc.) |
-| budget_amount | DECIMAL     | Budgeted amount for the category     |
-
----
-
-#### UserProfile – Basic Info for Segmentation
-
-**Table:** `users`
-
-| Column         | Type         | Description           |
-| -------------- | ------------ | --------------------- |
-| user_id        | INT          | Unique user ID        |
-| name           | VARCHAR(100) | Full name             |
-| age            | INT          | Age of the user       |
-| gender         | VARCHAR(10)  | Gender                |
-| monthly_income | DECIMAL      | User’s monthly income |
-| signup_date    | DATE         | Date of registration  |
+| Column Name  | Data Type   | Description                         |
+| ------------ | ----------- | ----------------------------------- |
+| user_id      | VARCHAR(20) | Student identifier                  |
+| subject_name | VARCHAR(50) | Academic subject                    |
+| grade_value  | DECIMAL     | Grade received                      |
+| exam_type    | VARCHAR(20) | Type of exam (quiz, midterm, final) |
+| exam_date    | DATE        | Date of the exam                    |
